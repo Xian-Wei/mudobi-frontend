@@ -1,19 +1,506 @@
+/* ─── Layout shell ─────────────────────────────── */
 .page {
+  position: relative;
+  min-height: 100vh;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  overflow-x: hidden;
 }
 
-.main {
+/* ─── Painted background canvas ─────────────────── */
+.canvas {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* each blob = a watercolour wash layer */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+}
+
+.blobBlue {
+  width: 820px;
+  height: 820px;
+  background: radial-gradient(circle, #5B7AFF 0%, #3B5AE8 50%, transparent 75%);
+  filter: blur(90px);
+  opacity: 0.55;
+  top: -220px;
+  left: -180px;
+}
+
+.blobPink {
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, #FFD0E0 0%, #FFAAC4 55%, transparent 75%);
+  filter: blur(80px);
+  opacity: 0.65;
+  bottom: -160px;
+  right: -140px;
+}
+
+.blobYellow {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, #FFF3A0 0%, #FFE162 55%, transparent 75%);
+  filter: blur(70px);
+  opacity: 0.55;
+  top: 10%;
+  right: 8%;
+}
+
+.blobMint {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #B8F5D4 0%, #7BEAB2 55%, transparent 75%);
+  filter: blur(80px);
+  opacity: 0.5;
+  bottom: 5%;
+  left: 5%;
+}
+
+/* small accent splotches */
+.blobAccent1 {
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, #FFE162 0%, #FF9F3A 60%, transparent 75%);
+  filter: blur(50px);
+  opacity: 0.45;
+  top: 45%;
+  left: 38%;
+}
+
+.blobAccent2 {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #D4B0FF 0%, #A070F0 60%, transparent 75%);
+  filter: blur(40px);
+  opacity: 0.4;
+  top: 20%;
+  right: 35%;
+}
+
+/* ─── Paper grain overlay ────────────────────────── */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 120px 120px;
+}
+
+/* ─── Nav ───────────────────────────────────────── */
+.nav {
+  position: relative;
+  z-index: 10;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 2.5rem;
+}
+
+.logo {
+  font-family: var(--font-dela), sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  text-shadow:
+    3px 3px 0 var(--cobalt),
+    5px 5px 0 rgba(59,90,232,0.2);
+}
+
+.walletBtn {
+  padding: 0.6rem 1.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: var(--font-nunito), sans-serif;
+  letter-spacing: 0.04em;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.walletBtn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.walletBtn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.walletBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ─── Main 2-column layout ──────────────────────── */
+.main {
+  position: relative;
+  z-index: 5;
   flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  padding: 2rem 3.5rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
   width: 100%;
-  max-width: 100%;
+}
+
+/* ─── Art / character side ──────────────────────── */
+.artSide {
+  display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1.5rem;
+}
+
+/* frame that holds the NFT — feels like a painted canvas */
+.nftFrame {
+  position: relative;
+  display: inline-block;
+  border: 5px solid var(--ink);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    10px 10px 0 var(--ink),
+    14px 14px 0 var(--cobalt),
+    -4px -4px 0 var(--pink),
+    0 0 0 9px rgba(255,245,232,0.6);
+  transform: rotate(-2.5deg);
+  transition: transform 0.35s ease;
+  background: #3B5AE8; /* fallback matches NFT bg */
+  cursor: grab;
+}
+
+.nftFrame:hover {
+  transform: rotate(-0.5deg) scale(1.02);
+}
+
+.nftFrame img {
+  display: block;
+  width: 400px;
+  height: 400px;
+  object-fit: cover;
+}
+
+/* decorative label under the NFT */
+.artTag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  transform: rotate(-1deg);
+}
+
+.artTagMain {
+  font-family: var(--font-dela), sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+  color: var(--ink);
+}
+
+.artTagSub {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cobalt);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* floating decorative stickers around the frame */
+.sticker {
+  position: absolute;
+  font-family: var(--font-dela), sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.7rem;
+  border: 2.5px solid var(--ink);
+  border-radius: 100px;
+  background: var(--yellow);
+  box-shadow: 3px 3px 0 var(--ink);
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.stickerFree {
+  top: -18px;
+  right: -18px;
+  transform: rotate(12deg);
+  background: var(--yellow);
+}
+
+.stickerNFT {
+  bottom: -14px;
+  left: -18px;
+  transform: rotate(-8deg);
+  background: var(--mint);
+}
+
+/* ─── Mint panel side ───────────────────────────── */
+.mintSide {
+  display: flex;
+  align-items: center;
   justify-content: center;
+}
+
+.mintPanel {
+  width: 100%;
+  max-width: 440px;
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 8px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  box-shadow:
+    10px 10px 0 var(--ink),
+    14px 14px 0 var(--cobalt);
+  transform: rotate(1deg);
+}
+
+/* ─── Panel text ────────────────────────────────── */
+.title {
+  font-family: var(--font-dela), sans-serif;
+  font-size: 3.2rem;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1;
+  /* painted underline */
+  text-decoration: underline;
+  text-decoration-color: var(--cobalt);
+  text-decoration-thickness: 5px;
+  text-underline-offset: 6px;
+}
+
+.subtitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #555;
+  text-align: center;
+  margin-top: -0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ─── Supply bar ────────────────────────────────── */
+.supplySection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.supplyBar {
+  height: 10px;
+  background: #E8E4DC;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.supplyFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cobalt) 0%, var(--pink) 100%);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  min-width: 3px;
+}
+
+.supplyText {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #777;
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+
+.noContract {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #666;
+  background: #F4EFE4;
+  border: 2.5px solid #CCC8BE;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.noContract code {
+  font-family: monospace;
+  color: var(--cobalt);
+  font-size: 0.76rem;
+}
+
+/* ─── Quantity selector ─────────────────────────── */
+.quantityRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.qBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.qBtn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.qBtn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.qBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.qValue {
+  font-family: var(--font-dela), sans-serif;
+  font-size: 2rem;
+  color: var(--ink);
+  min-width: 2.5ch;
+  text-align: center;
+}
+
+/* ─── Mint button ───────────────────────────────── */
+.mintBtn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--cobalt);
+  color: #fff;
+  border: 3.5px solid var(--ink);
+  border-radius: 10px;
+  font-family: var(--font-dela), sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.14em;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.15s;
+}
+
+.mintBtn:hover:not(:disabled) {
+  background: var(--cobalt2);
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
+}
+
+.mintBtn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.mintBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ─── Hints & status ────────────────────────────── */
+.hint {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #888;
+  text-align: center;
+  margin-top: -0.6rem;
+  letter-spacing: 0.04em;
+}
+
+.statusSuccess {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #22863a;
+  text-align: center;
+  border: 2.5px solid #22863a;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  background: rgba(123,234,178,0.18);
+}
+
+.statusSuccess a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.statusError {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #c0392b;
+  text-align: center;
+  border: 2.5px solid #e74c3c;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  background: rgba(255,170,196,0.18);
+  word-break: break-word;
+}
+
+/* ─── Responsive ────────────────────────────────── */
+@media (max-width: 860px) {
+  .main {
+    grid-template-columns: 1fr;
+    padding: 1.5rem 1.5rem 3rem;
+    gap: 2.5rem;
+  }
+
+  .nftFrame img {
+    width: 300px;
+    height: 300px;
+  }
+
+  .mintPanel {
+    transform: rotate(0deg);
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 2.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nftFrame img {
+    width: 260px;
+    height: 260px;
+  }
 }
